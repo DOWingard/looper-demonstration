@@ -1,0 +1,122 @@
+@import 'tailwindcss';
+
+/* One coherent operator-console design language (d5). Dark, calm, action-first — not a
+   telemetry wall. Status is carried by color + icon + motion (d4). */
+@theme {
+  --color-bg: #0a0d14;
+  --color-surface: #0e121c;
+  --color-panel: #121826;
+  --color-elevated: #18202f;
+  --color-hover: #1d2638;
+  --color-line: #232c3f;
+  --color-ink: #e7ebf3;
+  --color-muted: #9aa4b8;
+  --color-faint: #626c82;
+
+  --color-brand: #5b9dff;
+  --color-brand-dim: #2b4a7a;
+
+  --color-working: #34d399;
+  --color-waiting: #fbbf24;
+  --color-idle: #7c97c4; /* cool slate-blue — clearly distinct from the dim 'done' grey (d4) */
+  --color-done: #4a5468;
+  --color-sub: #c084fc;
+  --color-danger: #f87171;
+  --color-add: #3fb950;
+  --color-del: #f85149;
+
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', 'Menlo', 'Consolas', monospace;
+  --radius: 0.5rem;
+}
+
+/* One shared label primitive so every panel header reads in the same voice (d5) — used by
+   the sidebar, feed and context panels instead of a re-typed utility string each time. */
+.cc-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-faint);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+/* Quiet, consistent scrollbars across every panel. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line) transparent;
+}
+*::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--color-line);
+  border-radius: 6px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Status motion: working has a gentle pulse, waiting (needs the operator) pulses
+   brighter and larger so it is the most salient thing on screen (d1/d4). */
+@keyframes cc-pulse-working {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+@keyframes cc-pulse-waiting {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-waiting) 70%, transparent); }
+  50% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-waiting) 0%, transparent); }
+}
+.cc-dot-working { animation: cc-pulse-working 1.6s ease-in-out infinite; }
+.cc-dot-waiting { animation: cc-pulse-waiting 1.8s ease-out infinite; }
+
+/* A working session's glyph rotates — motion that reads as "in flight" at a glance (d4). */
+@keyframes cc-spin { to { transform: rotate(360deg); } }
+.cc-spin { animation: cc-spin 1.5s linear infinite; transform-origin: center; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-dot-working, .cc-dot-waiting, .cc-spin { animation: none; }
+}
+
+.cc-row-waiting {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--color-waiting) 9%, transparent), transparent 60%);
+}
+
+/* The "needs you" next-action banner: gently breathing amber so the operator's next move
+   is unmistakable without shouting (d1). */
+.cc-banner-waiting {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--color-waiting) 14%, transparent), color-mix(in srgb, var(--color-waiting) 4%, transparent));
+}
+.cc-banner-waiting:hover { background: linear-gradient(90deg, color-mix(in srgb, var(--color-waiting) 20%, transparent), color-mix(in srgb, var(--color-waiting) 6%, transparent)); }
+
+/* Thin focus ring, keyboard-first. */
+:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-brand) 70%, transparent);
+  outline-offset: 1px;
+  border-radius: 4px;
+}
+
+.cc-scroll { overflow-y: auto; overscroll-behavior: contain; }
+.cc-fade-in { animation: cc-fade 0.18s ease-out; }
+@keyframes cc-fade { from { opacity: 0; transform: translateY(2px); } to { opacity: 1; transform: none; } }
+
+/* Resize handles between panels. */
+.cc-handle {
+  background: transparent;
+  transition: background 0.12s;
+}
+.cc-handle:hover, .cc-handle.active { background: color-mix(in srgb, var(--color-brand) 45%, transparent); }

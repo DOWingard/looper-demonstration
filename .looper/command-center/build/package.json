@@ -1,0 +1,31 @@
+{
+  "name": "command-center",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Local-first web Command Center for many concurrent Claude Code CLI sessions: directory-grouped discovery, unified cross-session live action feed, attachable node-pty terminals, and concurrent-write-safe shared markdown memory.",
+  "scripts": {
+    "build": "vite build",
+    "start": "node src/server/index.js",
+    "serve": "node src/server/index.js",
+    "dev:web": "vite",
+    "test": "node --test test/*.test.js",
+    "fixtures": "node fixtures/generate.js",
+    "heartbeat": "node fixtures/heartbeat.js"
+  },
+  "dependencies": {
+    "chokidar": "^4.0.3",
+    "node-pty": "^1.0.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/xterm": "^5.5.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "tailwindcss": "^4.1.0",
+    "vite": "^7.0.0"
+  }
+}

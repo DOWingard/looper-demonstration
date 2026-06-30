@@ -1,0 +1,232 @@
+{
+  "target": "A local-first web Command Center that auto-discovers many concurrent Claude Code CLI sessions, groups them by real project directory, streams a unified cross-session live action feed from on-disk transcripts, attaches/detaches/reattaches real shells via node-pty, and shares concurrent-write-safe markdown memory per directory and globally.",
+  "slug": "command-center",
+  "criteria_count": 40,
+  "priority": ["functionality", "craft", "design", "originality"],
+  "category_allocation": {
+    "functionality": 14,
+    "craft": 11,
+    "design": 9,
+    "originality": 6
+  },
+  "stopping_target_fitness": 0.95,
+  "features": [
+    {
+      "id": "F1",
+      "title": "Session discovery + directory grouping",
+      "category": "functionality",
+      "description": "Scan CC_PROJECTS_DIR (default ~/.claude/projects); treat one subdir per cwd and one .jsonl per session; group every session under its REAL cwd (read the `cwd` field, fall back to decoding the dir name). Tail-recent + lazy-load — must NOT parse all history (thousands of files) on load. Boundary: sessions appear grouped by true project directory; startup does not block on full-history parse. Carries differentiator #1 (directory-grouped view).",
+      "notes": "Lazy-load/pagination strategy, how many sessions+records to tail initially, cwd-vs-dirname precedence, and any caching are left open."
+    },
+    {
+      "id": "F2",
+      "title": "Transcript record parser (real schema)",
+      "category": "functionality",
+      "description": "Parse JSONL line-by-line into a normalized record model faithful to the measured schema: top-level keys (type, uuid, parentUuid, timestamp, cwd, sessionId, isSidechain, agentId, message), assistant message.content[] blocks (thinking/text/tool_use), and tool results via toolUseResult on user records. Tolerant of malformed/partial lines — skip and count, never crash. Boundary: schema-faithful normalization that survives a bad line mid-file.",
+      "notes": "Internal normalized shape, how thinking vs text blocks are represented, and meta/attachment handling are left open."
+    },
+    {
+      "id": "F3",
+      "title": "Session status inference",
+      "category": "functionality",
+      "description": "Derive a real per-session status richer than running/done from last-record type + timestamp recency: e.g. running (recent tool activity) / waiting-for-input (last block is assistant text with no newer user record) / idle / done (stale). Boundary: a defined, defensible heuristic surfaced per session that distinguishes at least working vs waiting vs idle/stale.",
+      "notes": "Exact recency thresholds, the status taxonomy names, and whether to add blocked/waiting-on-tool/context-limit states are left to the generator."
+    },
+    {
+      "id": "F4",
+      "title": "Live transcript file watcher",
+      "category": "functionality",
+      "description": "Watch CC_PROJECTS_DIR for new files and appended lines; on change, parse only the delta and push it to clients in near-real-time (not on manual refresh). Boundary: an append to an existing session's .jsonl surfaces in the UI without reload; the watch scales to the tree without re-reading everything.",
+      "notes": "Watch library, debounce/coalesce window, tail-seek/partial-line handling, and rename/rotation handling are left open."
+    },
+    {
+      "id": "F5",
+      "title": "Unified cross-session live action feed",
+      "category": "functionality",
+      "description": "ONE chronological feed of major actions derived from tool_use blocks (Bash command, Edit/Write path, Read path, Task/agent dispatch) plus notable messages, merged ACROSS all sessions and all project directories, updating live. Each item names its source session/dir and distinguishes main-thread from subagent activity (isSidechain/agentId). Boundary: a single fleet-wide feed (exists in no reference); filterable by dir/session/type. Carries differentiator #2.",
+      "notes": "Which block types count as 'major', collapse/grouping of bursts, filter UI, and ordering under concurrent appends are left open."
+    },
+    {
+      "id": "F6",
+      "title": "Per-session activity / transcript view",
+      "category": "functionality",
+      "description": "A selected session renders its streaming transcript with tool-call visualization (tool name + input summary), thinking/text/tool_use shown distinctly, and tool results attached to their calls. Boundary: a readable live stream for one session where tool calls are legible at a glance.",
+      "notes": "Rendering depth, long-output collapsing, syntax highlighting, and sidechain nesting are left open."
+    },
+    {
+      "id": "F7",
+      "title": "Per-session file-change surface (+X / -Y)",
+      "category": "functionality",
+      "description": "Derive files-changed for a session from Edit/Write tool_use blocks into a first-class 'files changed, +X -Y' surface (per session, and per turn where derivable). Boundary: a non-optional surface listing touched paths with add/delete counts where computable from the transcript.",
+      "notes": "How to compute +/- from Edit old/new strings vs line diff, turn grouping, and dedup of repeated edits are left open."
+    },
+    {
+      "id": "F8",
+      "title": "node-pty session process backend",
+      "category": "functionality",
+      "description": "Backend spawns CC_SESSION_CMD (default `claude`, INTERACTIVE — never `claude -p`) inside a node-pty and tracks pty processes in a registry keyed by session, managing lifecycle (spawn, write, resize, kill). Boundary: a real pseudo-terminal per managed session using node-pty, not tmux. Carries differentiator #3.",
+      "notes": "Registry data structure, how managed ptys relate to discovered transcripts, and output buffering are left open."
+    },
+    {
+      "id": "F9",
+      "title": "Terminal attach / detach / reattach over WS",
+      "category": "functionality",
+      "description": "A frontend terminal attaches to a pty over WebSocket: the user types and sees live output; detach leaves the process RUNNING (not killed); reattach reconnects to the same live process with scrollback intact. Boundary: attach -> type -> see output -> detach (process survives) -> reattach must all work on a real pty; the evaluator drives this with a stand-in interactive CC_SESSION_CMD. Carries differentiator #3.",
+      "notes": "Scrollback replay buffer size, multi-client attach to one pty, and resize semantics are left open."
+    },
+    {
+      "id": "F10",
+      "title": "Dispatch a new session into a chosen directory",
+      "category": "functionality",
+      "description": "From the UI, launch a new CC_SESSION_CMD pty with cwd set to a chosen project directory; it appears in that directory's group and is attachable like any other session. Boundary: the new session starts in the REAL repo directory with NO worktree/container isolation (deliberately non-adopted).",
+      "notes": "Directory-picker UX and optional initial-prompt passing are left open."
+    },
+    {
+      "id": "F11",
+      "title": "Shared markdown memory store",
+      "category": "functionality",
+      "description": "One markdown file per project directory plus one global markdown file under CC_MEMORY_DIR, readable and writable from the UI. Boundary: per-dir memory is shown alongside that dir's group, global memory is always reachable, and edits persist to disk as plain markdown. Carries differentiator #4.",
+      "notes": "Filename mapping from cwd, editor-vs-append UX, and markdown rendering are left open."
+    },
+    {
+      "id": "F12",
+      "title": "Concurrent-write safety behind a swappable interface",
+      "category": "functionality",
+      "description": "Memory writes are concurrency-safe under many simultaneous writers — append-only log + compaction, or a single-writer daemon/queue — behind a small interface (e.g. read/append/compact) so an MCP-backed store can replace it later. Boundary: N concurrent appends produce NO corruption and NO lost writes; the interface is narrow and swappable. Carries differentiator #4.",
+      "notes": "Log-vs-daemon choice, compaction trigger, locking primitive, and the exact interface method set are left open."
+    },
+    {
+      "id": "F13",
+      "title": "Env-var config + fail-fast bootstrap",
+      "category": "functionality",
+      "description": "All config via env vars — CC_PROJECTS_DIR, CC_MEMORY_DIR, CC_SESSION_CMD, plus server port. Required vars fail fast at startup with an actionable message; optional dirs may default (projects -> ~/.claude/projects). NO silent defaults for required values. Boundary: a missing required env exits non-zero with a clear message BEFORE serving.",
+      "notes": "Which vars are required vs defaulted, and the validation message wording, are left open."
+    },
+    {
+      "id": "F14",
+      "title": "Synthetic fixtures generator",
+      "category": "functionality",
+      "description": "A command that writes synthetic, schema-faithful JSONL across >=3 fake project dirs with multiple sessions each, plus an append-over-time mode that adds new action records to simulate live sessions. Boundary: output flows through the same discovery/parse/feed path as real data; content is SYNTHETIC (never copied from real transcripts); covers tool_use variety, sidechains, and at least one malformed line for resilience testing.",
+      "notes": "CLI shape, volume, randomization, and how the live-append cadence is driven are left open."
+    },
+    {
+      "id": "F15",
+      "title": "HTTP/WS server wiring",
+      "category": "functionality",
+      "description": "A Node backend serves the frontend over HTTP and a WebSocket channel multiplexing feed/status/terminal streams; the whole app is browser-renderable and Playwright-gradeable at a local URL. Boundary: one server brings up UI + live data + terminals and tolerates client reconnect.",
+      "notes": "Server framework, the WS message protocol/multiplexing scheme, and reconnect/backoff are left open."
+    },
+    {
+      "id": "F16",
+      "title": "Command palette + keyboard-first control",
+      "category": "craft",
+      "description": "A Cmd/Ctrl-K command palette plus keyboard shortcuts for every major action — switch session, attach, jump to dir, open memory, filter feed, dispatch. Boundary: every primary action is reachable without the mouse and the palette is searchable.",
+      "notes": "The full shortcut map and palette fuzzy-search behavior are left open."
+    },
+    {
+      "id": "F17",
+      "title": "Near-real-time streaming responsiveness",
+      "category": "craft",
+      "description": "Live surfaces (feed, status, terminal) update within a ~100ms-class latency of an on-disk change, with no manual refresh. Boundary: an appended record produces a perceptibly immediate feed/status update and terminal output streams smoothly.",
+      "notes": "Debounce/coalesce strategy and backpressure handling are left open."
+    },
+    {
+      "id": "F18",
+      "title": "State persistence across reload",
+      "category": "craft",
+      "description": "UI state — selected session/dir, panel sizes, feed filters, attach intent — persists across reload so the operator returns to substantially the same working context. Boundary: reload does not reset the workspace.",
+      "notes": "localStorage vs server persistence and exactly what is persisted are left open."
+    },
+    {
+      "id": "F19",
+      "title": "Designed edge + error states",
+      "category": "craft",
+      "description": "Every edge/error state is explicitly handled and designed: empty fleet, dead/stale session, malformed JSONL line, pty exit/crash, memory write conflict, WS disconnect/reconnect. Boundary: none of these crash or blank the UI; each renders a legible, intentional state.",
+      "notes": "Per-state copy, visuals, and retry/reconnect behavior are left open."
+    },
+    {
+      "id": "F20",
+      "title": "Performance under fleet load",
+      "category": "craft",
+      "description": "Stays responsive with 7+ concurrent sessions over large transcripts via tail + lazy-load, virtualized lists, and bounded in-memory buffers. Boundary: initial load and live updates stay smooth at fleet scale with no full-history parse on the hot path.",
+      "notes": "Virtualization approach, buffer caps, and pagination thresholds are left open."
+    },
+    {
+      "id": "F21",
+      "title": "In-place output <-> diff toggle",
+      "category": "craft",
+      "description": "For a selected session, toggle in place between live activity/output and its file-change/diff view (Claude Squad's tab-toggle spirit). Boundary: one control/keystroke swaps the pane content without navigating away or losing selection.",
+      "notes": "Which views participate in the toggle and any transition treatment are left open."
+    },
+    {
+      "id": "F22",
+      "title": "Live at-a-glance session metadata",
+      "category": "craft",
+      "description": "Each session row/turn surfaces first-class live metadata: time-since-last-change, currently-active tool, session age, and the +X -Y from F7. Boundary: glanceable metadata that stays live without opening the session.",
+      "notes": "Exact metric set, formatting, and placement are left open."
+    },
+    {
+      "id": "F23",
+      "title": "Embedded terminal fidelity",
+      "category": "craft",
+      "description": "The embedded terminal feels real: correct resize/reflow (pane resize resizes the pty), scrollback, ANSI color/cursor fidelity, and copy/paste. Boundary: xterm-class fidelity in the browser.",
+      "notes": "Terminal addon set and scrollback size are left open."
+    },
+    {
+      "id": "F24",
+      "title": "Three-panel co-visible layout",
+      "category": "design",
+      "description": "A co-visible layout in the Nimbalyst spirit — directory-grouped session list | unified feed / per-session activity | files-changed + memory — visible together without tab-switching that loses context. Boundary: the four differentiators are co-present (not buried in modal flows) and the primary action has clear hierarchy. Do NOT collapse this into a telemetry wall.",
+      "notes": "Exact panel arrangement, resize/collapse affordances, and responsive behavior are deliberately left open — do not over-specify the visual design."
+    },
+    {
+      "id": "F25",
+      "title": "Directory-group legibility",
+      "category": "design",
+      "description": "Project directories read as first-class lanes/groups, each legible at a glance — dir name, session count, aggregate status, and branch/context where available. Boundary: grouping is visually obvious and a new directory is distinguishable instantly. Carries the visual weight of differentiator #1.",
+      "notes": "Group-header content, collapse behavior, and sort order are left open."
+    },
+    {
+      "id": "F26",
+      "title": "Status by color / icon / motion",
+      "category": "design",
+      "description": "Session status is communicated through color + icon + subtle animation (e.g. a working pulse), not text alone. Boundary: status is legible pre-attention across the whole fleet and visually distinct per state.",
+      "notes": "Palette, iconography, and the specific motion treatment are left open."
+    },
+    {
+      "id": "F27",
+      "title": "Consistent component system",
+      "category": "design",
+      "description": "A single coherent component system (the shadcn/Tailwind-class bar set by Claudia) with consistent spacing, type, and controls, reading as one designed product — explicitly NOT the chart-dense telemetry wall of the anti-references. Boundary: visual consistency across all panels.",
+      "notes": "Component library, theme, and density are left open."
+    },
+    {
+      "id": "F28",
+      "title": "Persistent command legend",
+      "category": "design",
+      "description": "A persistent affordance (a command legend / hint bar in the Claude Squad spirit) keeps key actions discoverable without entering a mode. Boundary: primary shortcuts are visible or one keystroke away at all times.",
+      "notes": "Placement and whether the legend adapts to context are left open."
+    },
+    {
+      "id": "F29",
+      "title": "Four-differentiator fusion as one surface",
+      "category": "originality",
+      "description": "The directory-grouped view, unified cross-session feed, GUI-wrapped attachable terminal, and cross-session shared memory operate as ONE interlinked surface — the combination no reference nor the native baseline has. Boundary: the four are connected (e.g. feed item -> jump to its session -> attach the terminal -> write a note into that dir's memory) rather than four disconnected tabs.",
+      "notes": "Exactly how the four interlink and which connective flows exist are deliberately left open for the generator to discover."
+    },
+    {
+      "id": "F30",
+      "title": "One fresh signature move",
+      "category": "originality",
+      "description": "One original, demoable mechanic in the spirit of Sculptor's Pairing Mode / Vibe Kanban's attempt-comparison / Claudia's branching timeline, but falling out of THIS product's unique substrate (cross-session feed + shared memory + real attach). Boundary: a memorable capability native to this data, not a copy of a reference's move.",
+      "notes": "WHAT the move is is deliberately OPEN. Candidates the generator may pick from or beat: feed-item -> pin-to-memory audit trail; a directory-context card (branch / failing tests / recent sessions in this repo); a cross-session 'what happened while I was away' digest; shared-memory scratchpad surfaced inside every session. Generator chooses and justifies."
+    },
+    {
+      "id": "F31",
+      "title": "Cross-fleet decision / audit trail",
+      "category": "originality",
+      "description": "An audit trail of notable actions and decisions made while the operator was away — the gap the native baseline explicitly leaves — reconstructable from the unified feed + memory. Boundary: the operator can answer 'what happened across my sessions since I last looked' without attaching to each one.",
+      "notes": "Digest granularity, persistence, and how/where it surfaces are left open."
+    }
+  ]
+}

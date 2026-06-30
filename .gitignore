@@ -1,0 +1,11 @@
+# Tool caches / browser artifacts created while running the loop (not part of the recorded run)
+.gstack/
+
+# Node build artifacts (also covered by the build's own .gitignore; belt-and-suspenders)
+**/node_modules/
+**/dist/
+
+# OS / local
+*.local
+.DS_Store
+Thumbs.db

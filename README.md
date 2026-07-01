@@ -4,13 +4,13 @@ A recorded, end-to-end run of the **`/looper`** skill — a self-maintaining
 generator–evaluator agent loop that builds a non-trivial software target to a quantitative
 fitness bar and stops when the trajectory says it has converged.
 
-This is the **`demonstration2`** submodule of the looper skill. A plain clone of the skill does
+This is the **`demonstration`** submodule of the looper skill. A plain clone of the skill does
 **not** include it; fetch it with:
 
 ```bash
 git clone --recurse-submodules <looper-skill-repo>
 # or, in an existing clone:
-git submodule update --init demonstration2
+git submodule update --init demonstration
 ```
 
 The run is captured under `.looper/command-center/` in two halves:

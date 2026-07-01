@@ -8,7 +8,7 @@ import { PERSIST_FIELDS, pickPersisted, mergePersisted } from '../src/shared/per
 
 const fullState = {
   selectedKey: 'k1',
-  selectedCwd: '/home/null/fixtures/webapp',
+  selectedCwd: '/home/user/fixtures/webapp',
   centerMode: 'terminal',
   rightTab: 'memory',
   memoryScope: 'global',

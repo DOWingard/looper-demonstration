@@ -7,7 +7,7 @@ function assistantToolUse(over = {}) {
     type: 'assistant',
     uuid: 'a1',
     timestamp: '2026-06-29T12:00:00.000Z',
-    cwd: '/home/null/fixtures/webapp',
+    cwd: '/home/user/fixtures/webapp',
     sessionId: 's1',
     isSidechain: false,
     message: { role: 'assistant', content: [{ type: 'tool_use', id: 'tu1', name: 'Edit', input: { file_path: '/x.js' } }] },

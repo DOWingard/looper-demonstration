@@ -24,7 +24,7 @@ test('append then read round-trips as plain markdown', async () => {
 test('per-dir memory writes to a cwd-encoded filename', async () => {
   const dir = tmpDir();
   const store = new MarkdownMemoryStore(dir);
-  await store.append('/home/null/fixtures/webapp', '- dir note');
+  await store.append('/home/user/fixtures/webapp', '- dir note');
   assert.ok(fs.existsSync(path.join(dir, '-home-null-fixtures-webapp.md')));
 });
 
@@ -63,7 +63,7 @@ test('K=80 concurrent appends to a PER-DIR file: every token lands once, no torn
   // own interface (the UI and the K-writer probe both go through these methods).
   const dir = tmpDir();
   const store = new MarkdownMemoryStore(dir);
-  const cwd = '/home/null/fixtures/webapp';
+  const cwd = '/home/user/fixtures/webapp';
   const K = 80;
   const tokens = Array.from({ length: K }, (_, i) => `DIRTOK-${i}-${'y'.repeat(40)}`);
   await Promise.all(tokens.map((t) => store.append(cwd, t)));
@@ -84,7 +84,7 @@ test('global and per-dir writers are independent queues: concurrent writes to bo
   // the two keys do not contend or cross-contaminate when written simultaneously.
   const dir = tmpDir();
   const store = new MarkdownMemoryStore(dir);
-  const cwd = '/home/null/fixtures/api';
+  const cwd = '/home/user/fixtures/api';
   const K = 40;
   const globalTokens = Array.from({ length: K }, (_, i) => `GLB-${i}`);
   const dirTokens = Array.from({ length: K }, (_, i) => `LCL-${i}`);
@@ -126,8 +126,8 @@ test('list reports global and per-dir keys', async () => {
   const dir = tmpDir();
   const store = new MarkdownMemoryStore(dir);
   await store.append('global', 'g');
-  await store.append('/home/null/fixtures/api', 'a');
+  await store.append('/home/user/fixtures/api', 'a');
   const items = await store.list();
   const keys = items.map((i) => i.key).sort();
-  assert.deepEqual(keys, ['/home/null/fixtures/api', 'global'].sort());
+  assert.deepEqual(keys, ['/home/user/fixtures/api', 'global'].sort());
 });

@@ -1,5 +1,5 @@
 // Claude Code stores one project directory per cwd, encoding the cwd by replacing
-// "/" with "-" (e.g. /home/null/work => -home-null-work). The encoding is lossy
+// "/" with "-" (e.g. /home/user/work => -home-null-work). The encoding is lossy
 // (real "-" in a path is indistinguishable from a separator), which is exactly why
 // the record's `cwd` field is authoritative and decodeDirName is fallback-only.
 

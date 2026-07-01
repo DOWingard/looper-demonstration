@@ -13,11 +13,11 @@ direct WS clients with no console/page errors. Run commands below are unchanged.
 
 ## ▶ How to run it (exact commands — evaluator)
 
-Build dir: `/home/null/Desktop/work/command-center/.looper/command-center/build`
+Build dir: `.looper/command-center/build`
 Open URL after launch: **http://127.0.0.1:4178**
 
 ```bash
-cd /home/null/Desktop/work/command-center/.looper/command-center/build
+cd .looper/command-center/build
 
 # 0. one-time: install deps (compiles node-pty natively; node 26 + make/g++ present)
 npm install                       # dist/ is already pre-built; `npm run build` rebuilds it
@@ -28,7 +28,7 @@ CC_PROJECTS_DIR=/tmp/cc-proj node fixtures/generate.js init
 # 2. launch (single command). CC_MEMORY_DIR is REQUIRED-no-default (fail-fast).
 CC_MEMORY_DIR=/tmp/cc-mem \
 CC_PROJECTS_DIR=/tmp/cc-proj \
-CC_SESSION_CMD="node /home/null/Desktop/work/command-center/.looper/command-center/build/fixtures/heartbeat.js" \
+CC_SESSION_CMD="node .looper/command-center/build/fixtures/heartbeat.js" \
 CC_PORT=4178 \
 npm start
 # -> serves http://127.0.0.1:4178
@@ -41,8 +41,8 @@ Harness seams:
 - **K-writer probe (f12):** `POST /api/memory {scope:'dir',cwd,content:'<unique line>',mode:'append'}` fired K≥50× concurrently → all land once, intact, file still markdown.
 - **Forced WS drop (c11):** kill/restart the server → client shows a reconnect banner, auto-reconnects, post-restart appends surface with no reload.
 - **Tests + mutation:** `npm test` (55 tests, node:test). Frontend bundle: `npm run build` → `dist/`.
-- **Browser QA (no gstack binary needed):** Playwright lives in pyenv 3.10.13; drive with
-  `/home/null/.pyenv/versions/3.10.13/bin/python` + `playwright.sync_api` (chromium cached).
+- **Browser QA (no gstack binary needed):** Playwright lives in a local Python; drive with
+  `python3` + `playwright.sync_api` (chromium cached).
 
 ## Built (end-to-end, all verified)
 

@@ -9,20 +9,20 @@ function toolRec(over, block) {
 
 const sessionA = {
   key: 'A',
-  cwd: '/home/null/fixtures/webapp',
+  cwd: '/home/user/fixtures/webapp',
   sessionId: 'sa',
   records: [
-    toolRec({ uuid: 'a1', timestamp: '2026-06-29T12:00:01.000Z', cwd: '/home/null/fixtures/webapp', sessionId: 'sa' }, { type: 'tool_use', name: 'Bash', input: { command: 'npm test' } }),
-    toolRec({ uuid: 'a2', timestamp: '2026-06-29T12:00:03.000Z', cwd: '/home/null/fixtures/webapp', sessionId: 'sa' }, { type: 'tool_use', name: 'Edit', input: { file_path: '/src/app.js' } }),
+    toolRec({ uuid: 'a1', timestamp: '2026-06-29T12:00:01.000Z', cwd: '/home/user/fixtures/webapp', sessionId: 'sa' }, { type: 'tool_use', name: 'Bash', input: { command: 'npm test' } }),
+    toolRec({ uuid: 'a2', timestamp: '2026-06-29T12:00:03.000Z', cwd: '/home/user/fixtures/webapp', sessionId: 'sa' }, { type: 'tool_use', name: 'Edit', input: { file_path: '/src/app.js' } }),
   ],
 };
 
 const sessionB = {
   key: 'B',
-  cwd: '/home/null/fixtures/api',
+  cwd: '/home/user/fixtures/api',
   sessionId: 'sb',
   records: [
-    toolRec({ uuid: 'b1', timestamp: '2026-06-29T12:00:02.000Z', cwd: '/home/null/fixtures/api', sessionId: 'sb', isSidechain: true, agentId: 'agent-7' }, { type: 'tool_use', name: 'Read', input: { file_path: '/server/index.js' } }),
+    toolRec({ uuid: 'b1', timestamp: '2026-06-29T12:00:02.000Z', cwd: '/home/user/fixtures/api', sessionId: 'sb', isSidechain: true, agentId: 'agent-7' }, { type: 'tool_use', name: 'Read', input: { file_path: '/server/index.js' } }),
   ],
 };
 

@@ -10,14 +10,14 @@ const digest = {
   total: 6,
   groups: [
     {
-      cwd: '/home/null/fixtures/webapp', label: 'webapp', count: 4,
+      cwd: '/home/user/fixtures/webapp', label: 'webapp', count: 4,
       sessions: [
         { sessionKey: 'a', sessionId: 'sess-a', count: 3, tools: { Bash: 2, Edit: 1 }, latest: { summary: 'npm test' } },
         { sessionKey: 'b', sessionId: 'sess-b', count: 1, tools: { Read: 1 }, latest: { summary: 'read x' } },
       ],
     },
     {
-      cwd: '/home/null/fixtures/api', label: 'api', count: 2,
+      cwd: '/home/user/fixtures/api', label: 'api', count: 2,
       sessions: [
         { sessionKey: 'c', sessionId: 'sess-c', count: 2, tools: { Grep: 2 }, latest: { summary: 'grep TODO' } },
       ],
@@ -40,7 +40,7 @@ test('waiting sessions are surfaced as a flat needs-you list with dir provenance
   const keys = out.needsYou.map((s) => s.sessionKey).sort();
   assert.deepEqual(keys, ['a', 'c']);
   // each needs-you entry carries the directory it belongs to so the operator can jump
-  assert.equal(out.needsYou.find((s) => s.sessionKey === 'a').cwd, '/home/null/fixtures/webapp');
+  assert.equal(out.needsYou.find((s) => s.sessionKey === 'a').cwd, '/home/user/fixtures/webapp');
   assert.equal(out.needsYou.find((s) => s.sessionKey === 'c').label, 'api');
 });
 

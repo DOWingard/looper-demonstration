@@ -29,13 +29,13 @@ if (!TARGET) {
 }
 
 const DIRS = {
-  webapp: { dirName: '-home-null-fixtures-webapp', cwd: '/home/null/fixtures/webapp', branch: 'main' },
-  api: { dirName: '-home-null-fixtures-api', cwd: '/home/null/fixtures/api', branch: 'develop' },
-  infra: { dirName: '-home-null-fixtures-infra', cwd: '/home/null/fixtures/infra', branch: 'main' },
-  // Conflict fixture: the on-disk dir name decodes to /home/null/fixtures/decoyAlpha,
-  // but every record carries cwd /home/null/fixtures/realBeta. Correct grouping must
+  webapp: { dirName: '-home-null-fixtures-webapp', cwd: '/home/user/fixtures/webapp', branch: 'main' },
+  api: { dirName: '-home-null-fixtures-api', cwd: '/home/user/fixtures/api', branch: 'develop' },
+  infra: { dirName: '-home-null-fixtures-infra', cwd: '/home/user/fixtures/infra', branch: 'main' },
+  // Conflict fixture: the on-disk dir name decodes to /home/user/fixtures/decoyAlpha,
+  // but every record carries cwd /home/user/fixtures/realBeta. Correct grouping must
   // follow the cwd (realBeta), proving cwd is read, not the dir name decoded.
-  conflict: { dirName: '-home-null-fixtures-decoyAlpha', cwd: '/home/null/fixtures/realBeta', branch: 'feature/login' },
+  conflict: { dirName: '-home-null-fixtures-decoyAlpha', cwd: '/home/user/fixtures/realBeta', branch: 'feature/login' },
 };
 
 const VERSION = '2.1.140';
@@ -235,7 +235,7 @@ function huge() {
   let sessions = 0;
   const profiles = ['working', 'waiting', 'idle', 'done'];
   for (let di = 0; di < dirCount; di++) {
-    const cwd = `/home/null/scale/proj${di}`;
+    const cwd = `/home/user/scale/proj${di}`;
     const dirName = encodeCwd(cwd);
     fs.rmSync(path.join(TARGET, dirName), { recursive: true, force: true });
     for (let si = 0; si < perDir; si++) {

@@ -19,7 +19,7 @@ Claude Code data, not assumptions.
 ## Real Claude Code transcript schema (probed from ~/.claude/projects, redacted)
 
 - `~/.claude/projects/` holds **one directory per project cwd** (49 here). Dir name = the cwd
-  with `/` → `-` (e.g. `-home-null-Desktop-work-looper` ⇒ `/home/null/Desktop/work/looper`).
+  with `/` → `-` (e.g. `-home-null-Desktop-work-looper` ⇒ `/home/user/projects/app`).
   **3749** total `.jsonl` files. → never parse all history on load; **tail recent + lazy-load**.
 - Each `.jsonl` file = **one session** (filename stem = sessionId). Some project dirs also
   contain a `subagents/` subfolder with sidechain transcripts.
